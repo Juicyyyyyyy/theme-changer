@@ -11,6 +11,7 @@ class Theme:
         self.wallpaper: str = None
         self.tools: List[str] = None
         self.colors: Dict[str, str] = {}
+        self.tool_images: Dict[str, str] = {}
         user = os.environ.get("USER")
         self.path_to_config: str = f"/home/{user}/.config"
         self.current_theme_config = None
@@ -142,12 +143,52 @@ class Theme:
             except Exception as e:
                 print(f"Error processing {path}: {e}")
 
+
+    def set_tool_images(self):
+        print("Setting tool images")
+        for config_path, image_path in self.tool_images.items():
+            config_path = config_path.strip()
+            image_path = image_path.strip()
+            if not os.path.exists(config_path):
+                print(f"File not found: {config_path}")
+                continue
+            filename = os.path.basename(config_path)
+            ext = filename.rsplit('.', 1)[1] if '.' in filename else ''
+            try:
+                with open(config_path, 'r') as file:
+                    lines = file.readlines()
+                updated = False
+                with open(config_path, 'w') as file:
+                    for line in lines:
+                        updated_line = line
+                        line_stripped = line.strip()
+                        if ext == 'rasi':  # Rofi file
+                            if line_stripped.startswith("background-image"):
+                                # Replace the line with the new image path
+                                updated_line = f"\tbackground-image: url(\"{image_path}\", width);\n"
+                                updated = True
+                        else:  # Default file (e.g., .conf, .ini)
+                            if line_stripped.startswith("image_source"):
+                                # Replace the line with the new image path
+                                key_part, _, value_part = line_stripped.partition("=")
+                                if key_part.strip() == "image_source":
+                                    updated_line = f"image_source = {image_path}\n"
+                                    updated = True
+                        file.write(updated_line)
+                if updated:
+                    print(f"Updated image_source in {config_path}")
+                else:
+                    print(f"No matching 'image_source' key to update in {config_path}")
+            except Exception as e:
+                print(f"Error processing {config_path}: {e}")
+
     def fetch_settings(self):
         print("fetch_settings called")
         self.global_config = configparser.ConfigParser()
         self.global_config.read(f"{self.path_to_config}/theme_manager/config.ini")
         print("Reading global config")
         self.current_theme = self.global_config["DEFAULT"]["SelectedTheme"]
+        print(self.current_theme)
         self.tools = self.global_config["DEFAULT"]["Tools"].split(',')
         self.current_theme_config = configparser.ConfigParser()
         self.current_theme_config.read(f"{self.path_to_config}/theme_manager/themes/{self.current_theme}.ini")
@@ -163,10 +204,20 @@ class Theme:
             self.colors[key] = value
             print(f"Color setting: {key} = {value}")
 
+        if "ToolImages" in self.current_theme_config:
+            for config_path, image_path in self.current_theme_config["ToolImages"].items():
+                # For safety, strip whitespace
+                config_path = config_path.strip()
+                image_path = image_path.strip()
+                self.tool_images[config_path] = image_path
+                print(f"Tool image mapping: {config_path} => {image_path}")
+
     def set_config(self):
         print("Setting config")
+        print(self.tool_images)
         self.set_wallpaper()
         self.set_colors()
+        self.set_tool_images()
 
 
 def main():
