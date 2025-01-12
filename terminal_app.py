@@ -143,7 +143,6 @@ class Theme:
             except Exception as e:
                 print(f"Error processing {path}: {e}")
 
-
     def set_tool_images(self):
         print("Setting tool images")
         for config_path, image_path in self.tool_images.items():
@@ -164,7 +163,6 @@ class Theme:
                         line_stripped = line.strip()
                         if ext == 'rasi':  # Rofi file
                             if line_stripped.startswith("background-image"):
-                                # Replace the line with the new image path
                                 updated_line = f"\tbackground-image: url(\"{image_path}\", width);\n"
                                 updated = True
                         else:  # Default file (e.g., .conf, .ini)
@@ -206,7 +204,6 @@ class Theme:
 
         if "ToolImages" in self.current_theme_config:
             for config_path, image_path in self.current_theme_config["ToolImages"].items():
-                # For safety, strip whitespace
                 config_path = config_path.strip()
                 image_path = image_path.strip()
                 self.tool_images[config_path] = image_path
