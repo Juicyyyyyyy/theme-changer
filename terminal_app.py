@@ -66,12 +66,17 @@ class Theme:
             print(f"An error occurred: {e}")
         config = configparser.ConfigParser()
         config["Colors"] = {}
-        config["Colors"]["PrimaryColor"] = ""
-        config["Colors"]["SecondaryColor"] = ""
-        config["Colors"]["TextColor"] = ""
-        config["Colors"]["AccentColor"] = ""
+        config["Colors"]["background"] = "#1F1F28"
+        config["Colors"]["background-alt"] = ""
+        config["Colors"]["text"] = ""
+        config["Colors"]["primary"] = ""
+        config["Colors"]["secondary"] = ""
+        config["Colors"]["urgent"] = ""
+        config["Colors"]["NameOfCustomKey"] = "#hexcodeofthecustomcolor"
         config["Wallpaper"] = {}
         config["Wallpaper"]["Path"] = ""
+        config["ToolImages"] = {}
+        config["ToolImages"]["path/to/the/tool/config"] = "path/to/the/image"
         try:
             with open(path, "w") as f:
                 config.write(f)
